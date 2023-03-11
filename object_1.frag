@@ -1,4 +1,4 @@
-/*This is your fragment shader for texture and normal mapping*/
+/*This is your first fragment shader!*/
 
 #version 330 core
 
@@ -12,14 +12,35 @@ layout (std140) uniform camera
 	vec4 position;		/*camera's position in world space*/
 };
 
-/*uniform variables*/
-uniform float iTime;					////time
-uniform sampler2D tex_albedo;			////texture color
-uniform sampler2D tex_normal;			////texture normal
+/* Passed time from the begining of the program */ 
+uniform float iTime;
 
+/*input variables*/
+in vec4 vtx_color;
+////TODO [Step 2]: add your in variables from the vertex shader
+in vec3 vtx_pos;
+in vec3 vtx_normal;
+
+/*output variables*/
 out vec4 frag_color;
+
+/*hard-coded lighting parameters*/
+const vec3 LightPosition = vec3(3, 1, 3);
+////TODO [Step 2]: add your Lambertian lighting parameters here
 
 void main()							
 {		
-	frag_color = vec4(1.f,0.f,0.f,1.f);
+	////TODO [Step 2]: add your Lambertian lighting calculation
+
+	// ambient
+	vec3 ambient = 0.3 * vtx_color.rgb;
+
+
+	// diffuse
+	vec3 l=normalize(LightPosition-vtx_pos);
+	float l_dot_n=dot(l,vtx_normal);
+	float diff=max(0.,l_dot_n);
+	vec3 diffuse = diff * 0.8 * vtx_color.rgb;
+
+	frag_color = vec4(ambient,1.f) + vec4(diffuse,1.f);
 }	

@@ -39,7 +39,7 @@ void main()
 {		
 	bool use_normal_mapping = true;	////TODO: set this flag to be true when you move from Step 2 to Step 3
 
-	float r = 50;
+	float r = 300;
 	float PI = 3.14159;
 
 	float x = v_pos[0];
