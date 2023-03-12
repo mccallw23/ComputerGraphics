@@ -177,7 +177,7 @@ float shininess = 32.0;
 	// Your implementation starts here
 	//float posY = cos(iTime) * 10;
 	/*This part is the same as your previous assignment. Here we provide a default parameter set for the hard-coded lighting environment. Feel free to change them.*/
-	vec3 LightPosition = vec3(10, 30, 0);
+	vec3 LightPosition = vec3(-10, 30, 0);
 	const vec3 LightIntensity = vec3(3000);
 	const vec3 ka = 0.1*vec3(1., 1., 1.);
 	const vec3 kd = 0.7*vec3(1., 1., 1.);
@@ -195,6 +195,17 @@ float shininess = 32.0;
 	vec3 viewDir = normalize(position.xyz - vtx_pos);
 	vec3 halfDir = normalize(_lightDir + viewDir);
 	lightingColor += ks * _localLight * pow(max(0., dot(normal, halfDir)), shininess);
+
+	vec3 fireFlyLightPosition = vec3(20,5,5);
+	const vec3 FireFlyLightIntensity = vec3(50,50,50);
+	vec3 fireFlyLightDir = fireFlyLightPosition - vtx_pos;
+	float _fireFlyLightDist = length(fireFlyLightDir);
+	vec3 _fireFlyLightDir = normalize(fireFlyLightDir);
+	vec3 _fireFlyLocalLight = FireFlyLightIntensity / (_fireFlyLightDist * _fireFlyLightDist);
+	//green firefly
+	vec3 fireFlyColor = vec3(1,1,1);
+	lightingColor += fireFlyColor * _fireFlyLocalLight * max(0., dot(_fireFlyLightDir, normal));
+	lightingColor += fireFlyColor * _fireFlyLocalLight * pow(max(0., dot(normal, halfDir)), shininess);
 
 
 	if (height(v) < 1)
