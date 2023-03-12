@@ -30,7 +30,7 @@ out vec4 frag_color;
 /*This part is the same as your previous assignment. Here we provide a default parameter set for the hard-coded lighting environment. Feel free to change them.*/
 const vec3 LightPosition = vec3(1, 3, 1);
 const vec3 LightIntensity = vec3(2);
-const vec3 ka = 0.8*vec3(1., 1., 1.);
+const vec3 ka = 0.5*vec3(1., 1., 1.);
 const vec3 kd = 0.2*vec3(1., 1., 1.);
 const vec3 ks = vec3(2.);
 const float n = 400.0;
@@ -39,7 +39,7 @@ void main()
 {		
 	bool use_normal_mapping = true;	////TODO: set this flag to be true when you move from Step 2 to Step 3
 
-	float r = 50;
+	float r = 300;
 	float PI = 3.14159;
 
 	float x = v_pos[0];
@@ -84,7 +84,7 @@ void main()
 		// ambient
 		vec3 ambient = ka * t_color;
 		// diffuse
-		vec3 l=normalize(LightPosition-v_pos);
+		vec3 l=normalize(LightPosition-v_pos)*0;
 		float l_dot_n=dot(l,t_norm);
 		float diff=max(0.,l_dot_n);
 		vec3 diffuse = diff * kd * t_color;

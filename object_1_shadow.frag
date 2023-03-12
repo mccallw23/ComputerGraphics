@@ -74,13 +74,16 @@ void main()
 				float diff_coef=max(dot(normal,-light_dir),0.);
 				vec4 diffuse=diff_coef*lt[i].dif;
 				c0=diffuse.rgb;
-				}break;
+				break;
+				}
 			case 1:{
 				/*implement point light here if you have one, look at OpenGLShaderProgram.cpp line 44-60 as a reference*/
-				}break;
+				break;
+				}
 			case 2:{
 				/*implement spot light here if you have one, look at OpenGLShaderProgram.cpp line 64-83 as a reference*/
-				}break;
+				break;
+				}
 		}
 
 		/*calculate shadow, do not modify unless you know what you are doing*/
