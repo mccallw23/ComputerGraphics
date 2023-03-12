@@ -52,7 +52,9 @@ public:
 		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("object_1.vert","object_1.frag","object_1");	
 		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("object_2.vert","object_2.frag","object_2");	
 		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("object_3.vert","object_3.frag","object_3");
-		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("skybox.vert", "skybox.frag", "skybox");	
+		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("skybox.vert", "skybox.frag", "skybox");
+		OpenGLShaderLibrary::Instance()->Add_Shader_From_File("modelZ.vert", "modelZ.frag", "waterShader");	
+
 	}
 
 	void Add_Textures()
@@ -75,6 +77,49 @@ public:
 		OpenGLBackground* opengl_background=Add_Interactive_Object<OpenGLBackground>();
 		opengl_background->shader_name="background";
 		opengl_background->Initialize();
+	}
+
+	//this is an example of adding a mesh object read from obj file
+	int Add_Water()
+	{
+		auto mesh_obj=Add_Interactive_Object<OpenGLTriangleMesh>();
+
+		////read mesh file
+		std::string obj_file_name="plane.obj";
+		Array<std::shared_ptr<TriangleMesh<3> > > meshes;
+		Obj::Read_From_Obj_File_Discrete_Triangles(obj_file_name,meshes);
+		mesh_obj->mesh=*meshes[0];
+
+		////This is an example showing how to access and modify the values of vertices on the CPU end.
+		//std::vector<Vector3>& vertices=mesh_obj->mesh.Vertices();
+		//int vn=(int)vertices.size();
+		//for(int i=0;i<vn;i++){
+		//	vertices[i]+=Vector3(1.,0.,0.);
+		//}
+
+		////This is an example of creating a 4x4 matrix for GLSL shaders. Notice that the matrix is column-major (instead of row-major!)
+		////The code for passing the matrix to the shader is in OpenGLMesh.h
+		mesh_obj->model_matrix=
+			glm::mat4(1.f,0.f,0.f,0.f,		////column 0
+					  0.f,1.f,0.f,0.f,		////column 1
+					  0.f,0.f,1.f,0.f,		////column 2
+					  1.f,1.f,1.f,1.f);		////column 3	////set the translation in the last column
+
+		////set up shader
+		//mesh_obj->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("object_1_shadow"));//Shadow TODO: uncomment this line and comment next line to use shadow shader
+		mesh_obj->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("waterShader"));
+		
+		////set up texture
+		mesh_obj->Add_Texture("tex_albedo", OpenGLTextureLibrary::Get_Texture("object_1_albedo"));
+		mesh_obj->Add_Texture("tex_normal", OpenGLTextureLibrary::Get_Texture("object_1_normal"));
+		Set_Polygon_Mode(mesh_obj,PolygonMode::Fill);
+		Set_Shading_Mode(mesh_obj,ShadingMode::Texture);//SHADOW TODO: set Shading Mode to Shadow
+		
+		////initialize
+		mesh_obj->Set_Data_Refreshed();
+		mesh_obj->Initialize();	
+		mesh_object_array.push_back(mesh_obj);
+		return (int)mesh_object_array.size()-1;
 	}
 
 	////this is an example of adding a mesh object read from obj file
@@ -119,6 +164,35 @@ public:
 	// 	mesh_object_array.push_back(mesh_obj);
 	// 	return (int)mesh_object_array.size()-1;
 	// }
+
+	// int Add_Water()
+	// {
+	// 	auto mesh_obj=Add_Interactive_Object<OpenGLTriangleMesh>();
+
+	// 	int obj_idx=Add_Obj_Mesh_Object("plane.obj");
+	// 	auto plane_obj=mesh_object_array[obj_idx];
+	// 	plane_obj->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("a4_shader"));
+
+	// 	Set_Polygon_Mode(plane_obj, PolygonMode::Fill);
+	// 	Set_Shading_Mode(plane_obj, ShadingMode::Texture);
+	// 	plane_obj->Set_Data_Refreshed();
+	// 	plane_obj->Initialize();
+	// }
+
+	int Add_Obj_Mesh_Object(std::string obj_file_name)
+	{
+		auto mesh_obj=Add_Interactive_Object<OpenGLTriangleMesh>();
+
+		Array<std::shared_ptr<TriangleMesh<3> > > meshes;
+		Obj::Read_From_Obj_File_Discrete_Triangles(obj_file_name,meshes);
+		mesh_obj->mesh=*meshes[0];
+		std::cout<<"load tri_mesh from obj file, #vtx: "<<mesh_obj->mesh.Vertices().size()<<", #ele: "<<mesh_obj->mesh.Elements().size()<<std::endl;		
+
+		mesh_object_array.push_back(mesh_obj);
+		return (int)mesh_object_array.size()-1;
+	}
+
+
 
 	////this is an example of adding a spherical mesh object generated analytically
 	int Add_Object_2()
@@ -246,12 +320,22 @@ public:
 		Add_Shaders();
 		Add_Textures();
 		Add_Background();
+		Add_Water();
 		// Add_Object_1();
 		int obj_idx = Add_Object_2();
 		auto obj = mesh_object_array[obj_idx];
 		Update_Vertex_Color_And_Normal_For_Mesh_Object(obj);		
 		Update_Vertex_UV_For_Mesh_Object(obj);	
 		// Add_Object_3();
+
+		// int obj_idx=Add_Obj_Mesh_Object("plane.obj");
+		// auto plane_obj=mesh_object_array[obj_idx];
+		// plane_obj->Add_Shader_Program(OpenGLShaderLibrary::Get_Shader("waterShader"));
+
+		// Set_Polygon_Mode(plane_obj, PolygonMode::Fill);
+		// Set_Shading_Mode(plane_obj, ShadingMode::Texture);
+		// plane_obj->Set_Data_Refreshed();
+		// plane_obj->Initialize();
 
 		//Init_Lighting(); ////SHADOW TODO: uncomment this line
 	}
